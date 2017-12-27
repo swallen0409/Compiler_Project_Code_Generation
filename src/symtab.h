@@ -48,8 +48,7 @@ struct SymTableEntry {
     int iValue;
     char * string;
     double rValue;
-    int int_array[100][100][100][100][100];
-    double real_array[100][100][100][100][100];
+
     //string type to be added
     int level;
     enum StdType type;

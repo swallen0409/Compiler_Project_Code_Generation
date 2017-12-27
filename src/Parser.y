@@ -8,6 +8,7 @@
     struct node * newOpNode(int op , int lineCount);
     extern int lineCount;
     extern int check;
+    FILE * fp;
     /* Called by yyparse on error.  */
      void
      yyerror (char const *s)
@@ -403,6 +404,9 @@ int main(int argc, char** argv) {
         printf("********************************\n"
                "*      No semantic error!      *\n"
                "********************************\n");
+        fp = fopen("foo.j" , "w");
+
+        fclose(fp);
     }
     else 
         printf("Semantic error\n");
