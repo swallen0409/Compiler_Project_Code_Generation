@@ -417,9 +417,7 @@ void semanticCheck(struct node *node) {
                 printf("[Error ] undeclared variable %s and at line %d\n", node->string , node->lineCount);
                 check = 0;
                 return;
-                //exit(0);
             }
-            //printf("identifier is %s type is %d\n" , node->string , entry->type);
             node->entry = entry;
             node->valueType = entry->type;
             ////////////////// symbol table entry is procedure /////////////////////////////
@@ -499,11 +497,11 @@ void semanticCheck(struct node *node) {
                                 struct array_descriptor * expr_array = expr->array;
                                 struct array_descriptor * entry_array = checkParam->array;
                                 while(entry_array->next_array != entry_array){
-                                    if(expr_array->array_begin != entry_array->array_begin || expr_array->array_end != entry_array->array_end){
+                                    /*if(expr_array->array_begin != entry_array->array_begin || expr_array->array_end != entry_array->array_end){
                                         printf("[Error ] out range at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
+                                    }*/
                                     if(expr_array->type != entry_array->type){
                                         printf("[Error ] array type mismatch at line %d\n" , node->lineCount);
                                         check = 0;
@@ -514,7 +512,6 @@ void semanticCheck(struct node *node) {
                                 }
                             }
                         }
-                        //to be continued 
                         expr = expr->rsibling;
                     }
                 }
@@ -522,7 +519,6 @@ void semanticCheck(struct node *node) {
             else if (entry->type == TypeFunction) {
                 node->function = entry->function;
                 node->valueType = entry->function->type;
-                //procedure -> identifier
                 if(node->child == NULL){
                     if(entry->function->param == NULL)
                         return;
@@ -533,8 +529,6 @@ void semanticCheck(struct node *node) {
                     }
                 }
                 else if(node->child->child == NULL){
-                    //node->iValue = entry->iValue;
-                    //check =0;
                     return;
                 }
                 else if(node->child->child->nodeType == TOKEN_LBRAC){
@@ -554,7 +548,7 @@ void semanticCheck(struct node *node) {
                     struct node * argument_check = argument;
                     do{
                         node_argument_num++;
-                        printf("expr type is %d at line %d\n" , argument_check->nodeType , argument_check->lineCount);
+                        //printf("expr type is %d at line %d\n" , argument_check->nodeType , argument_check->lineCount);
                         argument_check = argument_check->rsibling;
                     }while (argument_check != argument);
 
@@ -564,7 +558,7 @@ void semanticCheck(struct node *node) {
                         argumentNum++;
                         first_param = first_param->next_param;
                     }
-                    printf("%d %d\n" , node_argument_num , argumentNum);
+                    //printf("%d %d\n" , node_argument_num , argumentNum);
                     if(node_argument_num!=argumentNum){
                         printf("[Error ] wrong number of argument at line %d\n" , node->lineCount);
                         check = 0;
@@ -589,11 +583,11 @@ void semanticCheck(struct node *node) {
                                 struct array_descriptor * expr_array = expr->array;
                                 struct array_descriptor * entry_array = checkParam->array;
                                 while(entry_array->next_array != entry_array){
-                                    if(expr_array->array_begin != entry_array->array_begin || expr_array->array_end != entry_array->array_end){
+                                    /*if(expr_array->array_begin != entry_array->array_begin || expr_array->array_end != entry_array->array_end){
                                         printf("[Error ] out range at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
+                                    }*/
                                     if(expr_array->type != entry_array->type){
                                         printf("[Error ] array type mismatch at line %d\n" , node->lineCount);
                                         check = 0;
@@ -663,11 +657,11 @@ void semanticCheck(struct node *node) {
                             for(int i = 1 ; i < argumentNum ; i++){
                                 array_argument = array_argument->next_array;
                             }
-                            if(idx->iValue < array_argument->array_begin || idx->iValue > array_argument->array_end){
+                            /*if(idx->iValue < array_argument->array_begin || idx->iValue > array_argument->array_end){
                                 printf("[Error ] idx is %d out of range from %d to %d at line %d\n" , idx->iValue , array_argument->array_begin , array_argument->array_end , node->lineCount);
                                 check = 0;
                                 //return;
-                            }
+                            }*/
                             idx = idx->rsibling; //"]"
                             if(idx->rsibling == node->child->child){// no more [ num ]
                                 //printf("no more [\n");
@@ -708,17 +702,6 @@ void semanticCheck(struct node *node) {
                     check = 0;
                     return;
                 }
-                else {
-                    if(entry->type == TypeInt){
-                        node->iValue = entry->iValue;
-                    }
-                    else if(entry->type == TypeReal){
-                        node->rValue = entry->rValue;
-                    }
-                    //else if(entry->type == TypeString){
-                        
-                    //}
-                }
             }
             return;
         }
@@ -733,190 +716,71 @@ void semanticCheck(struct node *node) {
                             node->valueType = child1->valueType;
                             switch(node->op){
                                 case OP_ADD: {
-                                        if(child1->valueType == TypeInt){
-                                            node->iValue = child1->iValue + child2->iValue;
-                                            //node->entry->iValue = 
-                                            return;
-                                        }
-                                        else if(child1->valueType == TypeReal){
-                                            node->rValue = child1->rValue + child2->rValue; 
-                                            return;
-                                        }
-                                        else if(child1->valueType == TypeString){
+                                        if(child1->valueType == TypeString){
                                             printf("[Error ] wrong type  at line %d\n" , node->lineCount);
                                             check = 0;
                                             return;
                                         }
-                                        else {//type array
-    
-                                        }
                                 }
                                 case OP_SUB: {
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue - child2->iValue;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->rValue = child1->rValue - child2->rValue; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("Error: wrong type at line %d\n" , node->lineCount);
                                         return;
                                     }
-                                    else {//type array
-    
-                                    }
                                 }
                                 case OP_MUL:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue * child2->iValue;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->rValue = child1->rValue * child2->rValue; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         return;
-                                    }
-                                    else {//type array
-    
                                     }
                                 }
                                 case OP_DIV:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue / child2->iValue;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->rValue = child1->rValue / child2->rValue; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
-                                    else {//type array
-                                        printf("[Error ]wrong type in arithmetic operation at line %d\n" , node->lineCount);
-                                        check = 0;
-                                        return; 
                                     }
                                 }
                                 case OP_LT: {
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue < child2->iValue?1:0;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->iValue = child1->rValue < child2->rValue?1:0; 
-                                        node->valueType = TypeInt;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
                                     }
-                                    else {//type array
-    
-                                    }
                                 }
                                 case OP_GT:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue > child2->iValue?1:0;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->iValue = child1->rValue > child2->rValue?1:0;
-                                        node->valueType = TypeInt; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ]wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
                                     }
-                                    else {//type array
-    
-                                    }
                                 }
                                 case OP_EQ:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue == child2->iValue?1:0;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->iValue = child1->rValue == child2->rValue?1:0;
-                                        node->valueType = TypeInt; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
-                                    else {//type array
-    
                                     }
                                 }
                                 case OP_NE:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = (child1->iValue != child2->iValue )?1:0;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->iValue = (child1->rValue != child2->rValue)?1:0; 
-                                        node->valueType = TypeInt;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
-                                    else {//type array
-    
                                     }
                                 }
                                 case OP_GE:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = (child1->iValue >= child2->iValue)?1:0 ;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->iValue = (child1->rValue >= child2->rValue)?1:0 ;
-                                        node->valueType = TypeInt; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
-                                    else {//type array
-    
                                     }
                                 }
                                 case OP_LE:{
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = (child1->iValue <= child2->iValue)?1:0;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->iValue = (child1->rValue <= child2->rValue)?1:0;
-                                        node->valueType = TypeInt; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check = 0;
                                         return;
-                                    }
-                                    else {//type array
-    
                                     }
                                 }
                                 /*NOT factor
@@ -936,41 +800,19 @@ void semanticCheck(struct node *node) {
                         node->valueType = child1->valueType;
                         switch(node->op){
                             case OP_ADD: {
-                                    if(child1->valueType == TypeInt){
-                                        node->iValue = child1->iValue;
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeReal){
-                                        node->rValue = child1->rValue; 
-                                        return;
-                                    }
-                                    else if(child1->valueType == TypeString){
+                                    if(child1->valueType == TypeString){
                                         printf("[Error ] wrong type at line %d\n" , node->lineCount);
                                         check =0;
                                         return;
                                     }
-                                    else {//type array
-
+                            }
+                            case OP_SUB: {
+                                    if(child1->valueType == TypeString){
+                                        printf("[Error ] wrong type at line %d\n" , node->lineCount);
+                                        check =0;
+                                        return;
                                     }
                             }
-                        case OP_SUB: {
-                                if(child1->valueType == TypeInt){
-                                    node->iValue = child1->iValue;
-                                    return;
-                                }
-                                else if(child1->valueType == TypeReal){
-                                    node->rValue = child1->rValue; 
-                                    return;
-                                }
-                                else if(child1->valueType == TypeString){
-                                    printf("[Error ] wrong type at line %d\n" , node->lineCount);
-                                    check =0;
-                                    return;
-                                }
-                                else {//type array
-
-                                }
-                        }
                         }
                     }
                     return ;
@@ -1003,7 +845,6 @@ void semanticCheck(struct node *node) {
                 printf("[Error ] expression in while is not a right type at line %d\n" , node->lineCount);
                 check = 0;
                 return;
-                //exit(0);
             }
             SymbolTable.current_level++;
             return;
@@ -1029,7 +870,6 @@ void semanticCheck(struct node *node) {
             struct SymTableEntry * temp_check ;//= findSymbol_in_global(child1->string);
             if(scope_check==0){
                 temp_check = findSymbol_in_global(child1->string);
-                //printf("here\n");
             }
             else
                 temp_check = findSymbol_fun_pro_var(child1->string);
@@ -1053,7 +893,6 @@ void semanticCheck(struct node *node) {
             //////////procedure use in the assignment ///////////
             if(child1->valueType == TypeProcedure || child2->valueType == TypeProcedure){
                 printf("[Error ] Miss use of procedure at line %d\n" , node->lineCount);
-                //exit(0);
                 check = 0;
                 return;
             }
@@ -1064,20 +903,19 @@ void semanticCheck(struct node *node) {
                 printf("[Error ] type mismatch for assignment at line %d\n" , child1->lineCount);
                 check = 0;
                 return ;
-                //exit(0);
             }
             node->valueType = child1->valueType;
             /**********assign value into left element****************/
-            if(child1->valueType == TypeInt){
-                child1->entry->iValue = child2->iValue;
+            //if(child1->valueType == TypeInt){
+            //    child1->entry->iValue = child2->iValue;
                 //printf("Variable %s's value is %d \n", child1->entry->name , child1->entry->iValue);
-            }
-            else if(child1->valueType == TypeReal){
-                child1->entry->rValue = child2->rValue;
-            }
-            else if(child1->valueType == TypeString){
-                strcpy(child1->entry->string , child2->string);
-            }
+            //}
+            //else if(child1->valueType == TypeReal){
+            //    child1->entry->rValue = child2->rValue;
+            //}
+            //else if(child1->valueType == TypeString){
+            //    strcpy(child1->entry->string , child2->string);
+            //}
             //////////////// array assignment ////////
             /*else {
 
