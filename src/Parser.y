@@ -3,6 +3,7 @@
  #include <stdlib.h>
  #include "node-type.h"
  #include "symtab.h"
+ #include "code_gen.h"
     extern struct SymTable SymbolTable;
     struct node *  ASTRoot;
     struct node * newOpNode(int op , int lineCount);
@@ -404,8 +405,10 @@ int main(int argc, char** argv) {
         printf("********************************\n"
                "*      No semantic error!      *\n"
                "********************************\n");
+        printf("here\n");
         fp = fopen("foo.j" , "w");
-
+        gen_program_start();
+        travel_node(ASTRoot);
         fclose(fp);
     }
     else 

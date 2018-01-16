@@ -4,13 +4,10 @@
 #include "node-type.h"
 #include "symtab.h"
 
-
-
 void gen_program_start();
 void gen_program_end();
 void travel_node(struct node * node);
 void gen_global_var();
-void gen_local_var();
-
+void gen_vinit();
 
 #endif

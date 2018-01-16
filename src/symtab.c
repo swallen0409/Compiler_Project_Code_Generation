@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct SymTable SymbolTable;
+extern struct SymTable SymbolTable;
 int check =1;
 int scope_check = 0;
-
+int var_num=0;
 // new parameter element
 struct param_list * newParam(char * s , enum StdType type){
     struct param_list * param_list = (struct param_list *)malloc(sizeof(struct param_list));
@@ -155,7 +155,8 @@ struct SymTableEntry* addVariable(char *s, enum StdType type , struct array_desc
     strcpy(SymbolTable.entries[index].name, s);
     SymbolTable.entries[index].type = type;
     SymbolTable.entries[index].level = SymbolTable.current_level;
-    
+    SymbolTable.entries[index].var_num = var_num;
+    var_num++;
     if(type == TypeArray)
         SymbolTable.entries[index].array = array_desc;
     
@@ -214,7 +215,6 @@ struct param_list * initParam(struct node * parameter ){
     
     idList = idList->rsibling;
     while(typeList != parameter->child){//to be continued
-        //enum StdType type = StdtypeCheck(typeList);
         while(idList != index){
             struct param_list * nextParam = newParam(idList->string ,StdtypeCheck(typeList));//to be added
             idList = idList->rsibling; //"identifier" "identifier"
@@ -222,13 +222,10 @@ struct param_list * initParam(struct node * parameter ){
                 struct array_descriptor * array_desc_root = initArray(typeList->child);
                 nextParam->array = array_desc_root;
             }
-            //printf("param type %s is %d\n",nextParam->name , nextParam->type);
             add_param(param_root , nextParam);                        
         }
         typeList = typeList->rsibling;
-        //printf("typelist node %s type is %d\n", typeList->child->string , typeList->nodeType);
         if(typeList == parameter->child){
-            //printf("shit \n");
             break;
         }
         idList = typeList->child;
@@ -240,16 +237,8 @@ struct param_list * initParam(struct node * parameter ){
             struct array_descriptor * array_desc_root = initArray(typeList->child);
             nextParam->array = array_desc_root;
         }
-        //printf("param type %s is %d\n",nextParam->name , nextParam->type);
         add_param(param_root , nextParam);   
-        //typeList = typeList->rsibling;
     }
-    /*struct param_list * temp = param_root;
-    while(temp != temp->next_param){
-        printf("%s type %d\n" , temp->name , temp->type);
-        temp = temp->next_param;
-    }
-    printf("%s type %d\n" , temp->name , temp->type);*/
     return param_root;
 }
 ///////////////// print out symbol table ///////////////
@@ -905,21 +894,6 @@ void semanticCheck(struct node *node) {
                 return ;
             }
             node->valueType = child1->valueType;
-            /**********assign value into left element****************/
-            //if(child1->valueType == TypeInt){
-            //    child1->entry->iValue = child2->iValue;
-                //printf("Variable %s's value is %d \n", child1->entry->name , child1->entry->iValue);
-            //}
-            //else if(child1->valueType == TypeReal){
-            //    child1->entry->rValue = child2->rValue;
-            //}
-            //else if(child1->valueType == TypeString){
-            //    strcpy(child1->entry->string , child2->string);
-            //}
-            //////////////// array assignment ////////
-            /*else {
-
-            }*/
             return;
         }
     }
