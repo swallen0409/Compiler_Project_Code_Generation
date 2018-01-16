@@ -52,7 +52,7 @@ void gen_global_var(char * name , enum StdType type , int dim , enum StdType  ar
     else if(type == TypeString){/// string declaration
 		fprintf(fp, ".field public static %s %s\n",name,"S");
     }
-    else {
+    else { /// array declaration
         fprintf(fp, ".field public static %s ",name);
         for(int i = 0 ; i<dim ;i++){
             fprintf(fp,"%s", "[");
@@ -68,29 +68,29 @@ void gen_global_var(char * name , enum StdType type , int dim , enum StdType  ar
 }
 void gen_vinit(){
 ///////// initiate global variables /////////
-    fprintf(fp , "\n.method public static vinit()V\n.limit locals 100\n.limit stack 100");
+    fprintf(fp , "\n.method public static vinit()V\n.limit locals 100\n.limit stack 100\n");
     for(int i = 0 ; i<SymbolTable.size ;i++){
         if(SymbolTable.entries[i].level !=0)
             break;
         if(SymbolTable.entries[i].type == TypeInt){
-            fprintf(fp , "ldc 0\n");
-            fprintf(fp , "putstatic foo/%s I\n" , SymbolTable.entries[i].name );
+            fprintf(fp , "\tldc 0\n");
+            fprintf(fp , "\tputstatic foo/%s I\n" , SymbolTable.entries[i].name );
         }
         else if(SymbolTable.entries[i].type == TypeReal){
-            fprintf(fp , "ldc 0.0\n");
-            fprintf(fp , "putstatic foo/%s F\n" , SymbolTable.entries[i].name );
+            fprintf(fp , "\tldc 0.0\n");
+            fprintf(fp , "\tputstatic foo/%s F\n" , SymbolTable.entries[i].name );
         }
         else if(SymbolTable.entries[i].type == TypeString){
-            fprintf(fp , "sipush 0\n");
-            fprintf(fp , "putstatic foo/%s S\n" , SymbolTable.entries[i].name );
+            fprintf(fp , "\tsipush 0\n");
+            fprintf(fp , "\tputstatic foo/%s S\n" , SymbolTable.entries[i].name );
         }
         else if(SymbolTable.entries[i].type == TypeArray){//to be continued
 
         }
     }
-	fprintf(fp , "return\n.end method\n\n");
+	fprintf(fp , "\treturn\n.end method\n\n");
     ////// <init> handle
-    fprintf(fp , ".method public <init>()V\naload_0\ninvokenonvirtual java/lang/Object/<init>()V\nreturn\n.end method\n\n");
+    fprintf(fp , ".method public <init>()V\n\taload_0\n\tinvokenonvirtual java/lang/Object/<init>()V\n\treturn\n.end method\n\n");
 }
 /********** DFS to create an java bytecode ***********/
 void travel_node(struct node * node){
@@ -98,6 +98,10 @@ void travel_node(struct node * node){
 //        scope=1;
     printf("Here %d\n" ,node->nodeType );
     switch(node->nodeType) {
+        case NODE_SUB_DECLS:{
+            gen_vinit();
+            break;
+        }
         case NODE_BEGIN:{
             break;
         }
@@ -161,7 +165,101 @@ void travel_node(struct node * node){
             return;
         }
         case NODE_OP:{
-            return;
+            struct node * child1 = nthChild(1 , node);
+            struct node * child2 = nthChild(2 , node);
+            ////////////// binary operation /////////////
+            if(child1 != child2){
+                travel_node(child1);
+                travel_node(child2);
+                switch(node->op){
+                    case OP_ADD: {
+                        if(child1->valueType == TypeInt){
+                            fprintf(fp , "\tiadd\n");
+                            return;
+                        }
+                        else if(child1->valueType == TypeReal){
+                            fprintf(fp , "\tfadd\n");
+                            return;
+                        }
+                    }
+                    case OP_SUB: {
+                        if(child1->valueType == TypeInt){
+                            fprintf(fp , "\tisub\n");
+                            return;
+                        }
+                        else if(child1->valueType == TypeReal){
+                            fprintf(fp , "\tfsub\n");
+                            return;
+                        }
+                    }
+                    case OP_MUL:{
+                        if(child1->valueType == TypeInt){
+                            fprintf(fp , "\timul\n");
+                            return;
+                        }
+                        else if(child1->valueType == TypeReal){
+                            fprintf(fp , "\tfmul\n");
+                            return;
+                        }
+                    }
+                    case OP_DIV:{
+                        if(child1->valueType == TypeInt){
+                            fprintf(fp , "\tidiv\n");
+                            return;
+                        }
+                        else if(child1->valueType == TypeReal){
+                            fprintf(fp , "\tfdiv\n");
+                            return;
+                        }
+                    }
+                    case OP_LT: {
+                        if(child1->valueType == TypeString){
+                            printf("[Error ] wrong type at line %d\n" , node->lineCount);
+                            check = 0;
+                            return;
+                        }
+                    }
+                    case OP_GT:{
+                        if(child1->valueType == TypeString){
+                            printf("[Error ]wrong type at line %d\n" , node->lineCount);
+                            check = 0;
+                            return;
+                        }
+                    }
+                    case OP_EQ:{
+                        if(child1->valueType == TypeString){
+                            printf("[Error ] wrong type at line %d\n" , node->lineCount);
+                            check = 0;
+                            return;
+                        }
+                    }
+                    case OP_NE:{
+                        if(child1->valueType == TypeString){
+                            printf("[Error ] wrong type at line %d\n" , node->lineCount);
+                            check = 0;
+                            return;
+                        }
+                    }
+                    case OP_GE:{
+                        if(child1->valueType == TypeString){
+                            printf("[Error ] wrong type at line %d\n" , node->lineCount);
+                            check = 0;
+                            return;
+                        }
+                    }
+                    case OP_LE:{
+                        if(child1->valueType == TypeString){
+                            printf("[Error ] wrong type at line %d\n" , node->lineCount);
+                            check = 0;
+                            return;
+                        }
+                    }
+                                /*NOT factor
+                                case OP_NOT:{
+    
+                                }*/
+            }
+            break;
         }
         case NODE_IF:{
             return;
@@ -170,7 +268,7 @@ void travel_node(struct node * node){
             return;
         }
         case NODE_INT:{
-            fprintf(fp , "ldc %d\n" , node->iValue);
+            fprintf(fp , "sipush %d\n" , node->iValue);
             return;
         }
         case NODE_REAL:{
