@@ -7,6 +7,12 @@ extern FILE * fp;
 extern struct SymTable SymbolTable;
 int scope = 0;
 
+
+int label_count = 0;
+int label_stack[1024];
+int stack_top = 0;
+
+
 #define type_void 0
 #define type_int 1
 #define type_real 2
