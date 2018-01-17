@@ -25,7 +25,19 @@ int main_scope = 0;
 int while_scope = 0;
 int if_scope = 0;
 
+void gen_program_main(){
+    fprintf(fp , ".method public static main([Ljava/lang/String;)V\n");
+    return;
+}
 
+/********** find symbol entry within function or procedure ***************/
+struct SymTableEntry  * findSymbol_in_function_procedure(char * s){
+
+}
+/********** find symbol entry within main ***************/
+struct SymTableEntry  * findSymbol_in_main(char * s){
+
+}
 /********** generate start of xxx.j *********/
 void gen_program_start(){
     printf("start\n");
@@ -63,12 +75,18 @@ void gen_global_var(char * name , enum StdType type , int dim , enum StdType  ar
         for(int i = 0 ; i<dim ;i++){
             fprintf(fp,"%s", "[");
         }
-        if(array_type == TypeInt)
+        if(array_type == TypeInt){
             fprintf(fp , "%s\n" , "I");
-        else if(array_type == TypeReal)
+            function_type = type_int;
+        }
+        else if(array_type == TypeReal){
             fprintf(fp , "%s\n" , "F");
-        else 
+            function_type = type_real;
+        }
+        else {
             fprintf(fp , "%s\n" , "S");
+            function_type = type_string;
+        }
     }
 
 }
@@ -100,7 +118,9 @@ void gen_vinit(){
 }
 /********** DFS to create an java bytecode ***********/
 void travel_node(struct node * node){
-//    if(node->lsibling->nodeType == NODE_SUB_DECLS)
+    if(node->lsibling->nodeType == NODE_SUB_DECLS){
+        gen_program_main();
+    }
 //        scope=1;
     printf("Here %d\n" ,node->nodeType );
     switch(node->nodeType) {
@@ -112,6 +132,18 @@ void travel_node(struct node * node){
             break;
         }
         case NODE_FUN_HEAD:{
+            fprintf(fp , ".method public static ");
+            struct node * function_name = nthChild(1 , node);
+            struct node * type_name = nthChild(3 , node);
+            fprintf(fp , "%s(" , function_name->string);
+
+
+            if (type_name->nodeType==NODE_TYPE_INT)
+                fprintf(fp , ")I\n");
+            else if (type_name->nodeType==NODE_TYPE_REAL)
+                fprintf(fp , ")F\n");
+            else if (node->nodeType==NODE_TYPE_STRING)
+                fprintf(fp , ")S\n" . )
             break;
         }
         case NODE_PRO_HEAD:{
