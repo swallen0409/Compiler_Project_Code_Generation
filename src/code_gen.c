@@ -29,7 +29,6 @@ void gen_program_main(){
     fprintf(fp , ".method public static main([Ljava/lang/String;)V\n");
     return;
 }
-
 /********** find symbol entry within function or procedure ***************/
 struct SymTableEntry  * findSymbol_in_function_procedure(char * s){
 
@@ -47,15 +46,16 @@ void gen_program_start(){
     return;
 }
 /********** generate end of xxx.j ***********/
-void gen_program_end(struct node * node){
+void gen_program_end(){
     if(function_type == type_void)
-        fprintf(fp, "return\n");
+        fprintf(fp, "\treturn\n");
     else if(function_type == type_int)
-        fprintf(fp , "ireturn\n");
+        fprintf(fp , "\tireturn\n");
     else if(function_type == type_real)
-        fprintf(fp , "freturn\n");
+        fprintf(fp , "\tfreturn\n");
     //// string return 
 	fprintf(fp, ".end method\n");
+    function_type = type_void;
     return;
 }
 /********* generate global variable *********/
@@ -77,15 +77,12 @@ void gen_global_var(char * name , enum StdType type , int dim , enum StdType  ar
         }
         if(array_type == TypeInt){
             fprintf(fp , "%s\n" , "I");
-            function_type = type_int;
         }
         else if(array_type == TypeReal){
             fprintf(fp , "%s\n" , "F");
-            function_type = type_real;
         }
         else {
             fprintf(fp , "%s\n" , "S");
-            function_type = type_string;
         }
     }
 
@@ -138,19 +135,25 @@ void travel_node(struct node * node){
             fprintf(fp , "%s(" , function_name->string);
 
 
-            if (type_name->nodeType==NODE_TYPE_INT)
+            if (type_name->nodeType==NODE_TYPE_INT){
                 fprintf(fp , ")I\n");
-            else if (type_name->nodeType==NODE_TYPE_REAL)
+                function_type = type_int;
+            }
+            else if (type_name->nodeType==NODE_TYPE_REAL){
                 fprintf(fp , ")F\n");
-            else if (node->nodeType==NODE_TYPE_STRING)
-                fprintf(fp , ")S\n" . )
+                function_type = type_real;
+            }
+            else if (node->nodeType==NODE_TYPE_STRING){
+                fprintf(fp , ")S\n");
+                function_type = type_string;
+            }
             break;
         }
         case NODE_PRO_HEAD:{
             break;
         }
         case NODE_END:{
-            gen_program_end(node);
+            gen_program_end();
             return;
         }
         case NODE_DECL:{
@@ -250,7 +253,7 @@ void travel_node(struct node * node){
                             return;
                         }
                     }
-                    case OP_LT: {
+                    /*case OP_LT: {
                         if(child1->valueType == TypeString){
                             printf("[Error ] wrong type at line %d\n" , node->lineCount);
                             check = 0;
@@ -291,11 +294,12 @@ void travel_node(struct node * node){
                             check = 0;
                             return;
                         }
-                    }
+                    }*/
                                 /*NOT factor
                                 case OP_NOT:{
     
                                 }*/
+                }
             }
             break;
         }
