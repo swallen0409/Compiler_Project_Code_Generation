@@ -41,6 +41,10 @@ struct node;
 #define NODE_FUN_HEAD       21
 #define NODE_PRO_HEAD       22
 
+// read writeln
+#define NODE_READ           23
+#define NODE_WRITELN        24
+
 #define NODE_LIST           50
 #define NODE_OPT_VAR        51
 

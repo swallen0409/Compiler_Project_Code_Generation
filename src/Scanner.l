@@ -48,6 +48,8 @@
 #define   INTEGER 39
 #define   begin 40
 #define   string_v 41
+#define   READ 42
+#define   WRITELN 43
 */
 int lineCount = 1;
 extern YYSTYPE yylval;
@@ -154,12 +156,21 @@ NQUOTE [^']
                           yylval.node_t = newTokenNode(STRING,lineCount);
                           return(STRING);
 }
+{R}{E}{A}{D} {
+      yylval.node_t = newTokenNode(READ, lineCount);
+      return(READ);
+}
+{W}{R}{I}{T}{E}{L}{N} {
+      yylval.node_t = newTokenNode(WRITELN, lineCount);
+      return(WRITELN);
+}
 [a-zA-Z]([a-zA-Z0-9]|"_")*   { 
                           yylval.node_t = newTokenNode(IDENTIFIER,lineCount); 
                           yylval.node_t->string = (char*)malloc(yyleng+1); 
                           strcpy(yylval.node_t->string , yytext);
                           return(IDENTIFIER);
 }
+
 
 ":="              {
             yylval.node_t = newTokenNode(ASSIGNMENT,lineCount); 
@@ -174,8 +185,7 @@ NQUOTE [^']
         return(COMMA);
 }
 
-[0-9]+  |
-"-"[0-9]+                 {
+[0-9]+             {
       yylval.node_t = newTokenNode(DIGSEQ,lineCount);     
       yylval.node_t->valueValid = VALUE_I_VALID;
       yylval.node_t->iValue = atoi(yytext); 
@@ -255,8 +265,7 @@ NQUOTE [^']
       return(RBRAC);
 }
 
-[0-9]+"."[0-9]+  |
-"-"[0-9]+"."[0-9]+            {
+[0-9]+"."[0-9]+         {
                   yylval.node_t = newTokenNode(REALNUMBER,lineCount);
                   yylval.node_t->rValue = atof(yytext); 
                   yylval.node_t->valueValid = VALUE_R_VALID;

@@ -79,7 +79,9 @@
      real = 295,
      INTEGER = 296,
      begin = 297,
-     string_v = 298
+     string_v = 298,
+     READ = 299,
+     WRITELN = 300
    };
 #endif
 /* Tokens.  */
@@ -124,18 +126,20 @@
 #define INTEGER 296
 #define begin 297
 #define string_v 298
+#define READ 299
+#define WRITELN 300
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 22 "Parser.y"
+#line 24 "Parser.y"
 { 
     struct node * node_t ;
 }
 /* Line 1529 of yacc.c.  */
-#line 139 "y.tab.h"
+#line 143 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -1,3 +1,4 @@
+
 %{
  #include <stdio.h>
  #include <stdlib.h>
@@ -37,14 +38,15 @@
 %token <node_t> notEQUAL 
 %token <node_t> STRING  
 %token <node_t> real INTEGER  begin string_v
+%token <node_t> READ WRITELN
 
 %type <node_t> prog identifier_list standard_type optional_var 
-%type <node_t> procedure_statement relop term factor
+%type <node_t> procedure_statement relop factor
 %type <node_t> subprogram_declaration subprogram_declarations 
 %type <node_t> subprogram_head parameter_list expression
 %type <node_t> expression_list   arguments   declarations type
-%type <node_t> variable tail addop mulop compound_statement optional_statements 
-%type <node_t> statement statement_list  simple_expression 
+%type <node_t> variable tail addop minusop mulop compound_statement optional_statements simple_expression 
+%type <node_t> statement statement_list term 
 %start prog
 %%
 
@@ -224,6 +226,20 @@ statement : variable ASSIGNMENT expression {
             addChild($$ , $4);
             deleteNode($1);
             deleteNode($3);};
+    | READ LPAREN factor RPAREN{
+        $$ = newNode(NODE_READ , lineCount);
+        addChild($$ , $3);
+        deleteNode($1);
+        deleteNode($2);
+        deleteNode($4);
+    };
+    |WRITELN LPAREN factor RPAREN {
+        $$ = newNode(NODE_WRITELN , lineCount);
+        addChild($$ , $3);
+        deleteNode($1);
+        deleteNode($2);
+        deleteNode($4);
+    };
 	| lambda {$$ = newNode(NODE_LIST, lineCount);};
 
 
@@ -281,6 +297,11 @@ simple_expression : term {
             $$ = $2;
             addChild($$ , $1);
             addChild($$ , $3);};
+    | simple_expression minusop term{
+            $$ = newOpNode(OP_SUB, lineCount);
+            addChild($$ , $1);
+            addChild($$ , $3);
+    };
 
 
 term : factor {
@@ -307,17 +328,21 @@ factor : IDENTIFIER tail { //call declared variable , function , procedure
         $$ = $1;
         $$->nodeType = NODE_INT;
              };
-    | addop DIGSEQ {
-            $$ = $1;
-            addChild($$ , $2);         
+    | minusop DIGSEQ {
+            $2->nodeType = NODE_INT;
+            $2->iValue=-$2->iValue;
+            $$=$2;
+            deleteNode($1);         
                    };
     | REALNUMBER {
         $$ = $1;
         $$->nodeType = NODE_REAL;
                  };
-    | addop REALNUMBER {
-            $$ = $1;
-            addChild($$ , $2);
+    | minusop REALNUMBER {
+            $2->nodeType = NODE_REAL; 
+            $2->rValue=-$2->rValue;
+            $$=$2;
+            deleteNode($1);
                        };
 	| LPAREN expression RPAREN {
                 $$ = $2;
@@ -333,9 +358,8 @@ factor : IDENTIFIER tail { //call declared variable , function , procedure
 addop : PLUS {
                 $$ = newOpNode(OP_ADD, lineCount);
                 deleteNode($1);};
-        | MINUS {
-                $$ = newOpNode(OP_SUB, lineCount);
-                deleteNode($1);};
+minusop : MINUS {
+                };
 
 
 mulop : STAR {
@@ -380,6 +404,8 @@ int main(int argc, char** argv) {
     
     fprintf(stderr, "open file.\n");
     if(argc>1 && freopen(argv[1],"r",stdin)==NULL){
+        printf("fuckleo\n");
+        fprintf(stderr , "no file\n");
         exit(1);
     }
     
